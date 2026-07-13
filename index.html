@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RetroBridge: the SD card manager for retro handhelds</title>
+<meta name="description" content="Free, open-source app for managing the SD card in a retro handheld. See every game and save, add or remove games, build and share collections, and back up your saves." />
+<meta property="og:title" content="RetroBridge - the SD card manager for retro handhelds" />
+<meta property="og:description" content="Plug in your handheld and see every game and save on the card. Add or remove games, build and share collections, and back up your saves to your PC." />
+<meta property="og:image" content="https://retrobridgeapp.github.io/assets/games.png" />
+<link rel="icon" href="assets/icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --paper: #fafbfc; --surface: #ffffff; --ink: #16181d; --muted: #5a6472;
+  --accent: #2d6cff; --accent-ink: #ffffff; --line: #e4e8ee; --line2: #d3dae3;
+  --ok: #1c9e5a; --ok-bg: #e8f7ef; --chip-bg: #eef2f7;
+  --shadow: 0 1px 2px rgba(22,24,29,.05), 0 18px 44px -18px rgba(22,24,29,.20);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0f1216; --surface: #161a20; --ink: #eceff3; --muted: #98a2b0;
+    --accent: #5b8cff; --accent-ink: #0f1216; --line: #262c35; --line2: #333b47;
+    --ok: #3ecf8e; --ok-bg: #12291d; --chip-bg: #1d232b;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 18px 44px -18px rgba(0,0,0,.6);
+  }
+}
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+[hidden] { display: none !important; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 400 17px/1.62 "Hanken Grotesk", -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+.eyebrow { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+
+.nav { display: flex; align-items: center; gap: 12px; padding: 20px 0; }
+.nav img { width: 34px; height: 34px; border-radius: 8px; }
+.nav .name { font-weight: 700; font-size: 18px; letter-spacing: -.01em; color: var(--ink); }
+.nav .links { margin-left: auto; display: flex; gap: 22px; align-items: center; font-weight: 600; font-size: 15px; }
+.nav .links a { color: var(--muted); }
+.nav .links a:hover { color: var(--ink); text-decoration: none; }
+.nav .links a.dl { color: var(--accent); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; padding: 13px 22px;
+  font-weight: 700; font-size: 16px; letter-spacing: .01em; border: 1px solid transparent;
+  transition: filter 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { text-decoration: none; filter: brightness(1.06); transform: translateY(-1px); }
+.btn.ghost { border-color: var(--line2); color: var(--ink); background: var(--surface); }
+.btn.ghost:hover { text-decoration: none; border-color: var(--muted); }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.hero { max-width: 62ch; padding: 60px 0 8px; }
+.hero h1 { font-size: clamp(38px, 5vw, 54px); line-height: 1.05; font-weight: 800; letter-spacing: -.03em; margin-top: 16px; text-wrap: balance; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .sub { margin-top: 20px; font-size: 19px; color: var(--muted); max-width: 54ch; }
+.hero .cta { margin-top: 28px; }
+.platforms { margin-top: 16px; font-size: 13px; color: var(--muted); }
+.value-strip { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; }
+.value-strip span {
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 600;
+  color: var(--muted); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 13px;
+}
+
+/* Screenshot slideshow: the app is the star. Each slide is a
+   <figure class="slide"><img src="assets/shot.png" ...></figure> with a
+   data-cap that drives the caption below. */
+.showcase { padding: 34px 0 8px; }
+.slideshow { position: relative; }
+.slide-stage {
+  position: relative; aspect-ratio: 1600 / 1136; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow);
+}
+.slide { position: absolute; inset: 0; opacity: 0; transition: opacity 450ms ease; display: flex; align-items: center; justify-content: center; }
+.slide.active { opacity: 1; }
+.slide img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.slide.placeholder { flex-direction: column; gap: 14px; color: var(--muted); padding: 24px; text-align: center; }
+.slide.placeholder .ph {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  border: 2px dashed var(--line2); border-radius: 14px; padding: 40px 32px; width: min(440px, 90%);
+}
+.slide.placeholder svg { color: var(--line2); }
+.slide.placeholder b { font-size: 15px; font-weight: 700; color: var(--ink); }
+.slide.placeholder small { font-size: 13px; }
+.nav-btn {
+  position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center; border-radius: 999px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); color: var(--ink); box-shadow: var(--shadow);
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+.nav-btn:hover { border-color: var(--accent); }
+.nav-prev { left: 14px; }
+.nav-next { right: 14px; }
+.slide-meta { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+.slide-cap { font-size: 14px; color: var(--muted); flex: 1 1 auto; }
+.dots { display: flex; gap: 8px; }
+.dot { width: 9px; height: 9px; border-radius: 999px; background: var(--line2); border: none; padding: 0; cursor: pointer; transition: width 160ms ease, background-color 160ms ease; }
+.dot[aria-current="true"] { width: 24px; background: var(--accent); }
+
+.section { padding: 84px 0; }
+h2 { font-size: clamp(27px, 3.4vw, 35px); font-weight: 800; letter-spacing: -.02em; text-wrap: balance; }
+.section-lead { margin-top: 14px; color: var(--muted); max-width: 60ch; font-size: 18px; }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px 22px;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+.card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
+.card .tag { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; font-weight: 600; letter-spacing: .12em; color: var(--accent); }
+.card h3 { font-size: 17.5px; font-weight: 700; margin: 10px 0 8px; }
+.card p { font-size: 14.5px; color: var(--muted); }
+
+.band { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface); }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; padding: 72px 0; }
+.split .body h2 { margin-top: 12px; }
+.split .body p { margin-top: 14px; color: var(--muted); }
+.split .body p strong { color: var(--ink); }
+.split .body .cta { margin-top: 24px; }
+.mini-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mini-gallery .tile { aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--line); background: linear-gradient(135deg, var(--tileA, #2d6cff), var(--tileB, #7c5cff)); }
+
+.trust { padding: 56px 0; }
+.trust-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 30px; box-shadow: var(--shadow); }
+.trust-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.trust-head h2 { font-size: clamp(21px, 2.6vw, 27px); }
+.trust .note { margin-top: 12px; color: var(--muted); max-width: 68ch; font-size: 16.5px; }
+.pipeline { margin: 22px 0 22px; display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.pipeline .step { font-family: "IBM Plex Mono", monospace; font-size: 13px; background: var(--chip-bg); border: 1px solid var(--line); border-radius: 7px; padding: 6px 12px; font-weight: 600; color: var(--muted); }
+.pipeline .step.back { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.pipeline .sep { color: var(--line2); }
+.trust-points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.trust-points h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.trust-points p { font-size: 14px; color: var(--muted); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.chip { font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 600; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 15px; }
+.chip.you { color: var(--accent); border-style: dashed; }
+.fw-note { margin-top: 14px; font-size: 16.5px; color: var(--muted); max-width: 66ch; }
+
+.closer { text-align: center; padding: 8px 0; }
+.closer p { margin: 14px auto 0; color: var(--muted); max-width: 52ch; font-size: 18px; }
+.closer .cta { justify-content: center; margin-top: 26px; }
+
+.footer { border-top: 1px solid var(--line); padding: 40px 0 56px; font-size: 14px; color: var(--muted); margin-top: 20px; }
+.footer .row { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+.footer .row a { color: var(--muted); font-weight: 600; }
+.footer .row a:hover { color: var(--ink); }
+.footer .fine { margin-top: 18px; max-width: 72ch; font-size: 13px; }
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto; } }
+@media (max-width: 880px) {
+  .grid, .trust-points { grid-template-columns: 1fr; }
+  .split { grid-template-columns: 1fr; gap: 28px; padding: 56px 0; }
+  .section { padding: 60px 0; }
+  .nav-btn { width: 38px; height: 38px; }
+}
+</style>
+</head>
+<body>
+
+<header class="wrap nav">
+  <img src="assets/icon.png" alt="" />
+  <span class="name">RetroBridge</span>
+  <nav class="links">
+    <a href="collections.html">Collections</a>
+    <a href="https://github.com/retrobridgeapp/retrobridge">GitHub</a>
+    <a class="dl" href="https://github.com/retrobridgeapp/retrobridge/releases/latest">Download</a>
+  </nav>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <p class="eyebrow">SD card manager for retro handhelds</p>
+    <h1>See and manage your handheld's <em>SD card</em>.</h1>
+    <p class="sub">Plug in a Miyoo, Anbernic, or RG handheld and RetroBridge reads the card: every game,
+    save, and system on it. Add games, remove the ones you're done with, build collections, and copy
+    them back. It identifies games by their contents, not their filenames, so it recognizes them even
+    when the files have odd names.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/retrobridgeapp/retrobridge/releases/latest">Download</a>
+      <a class="btn ghost" href="https://github.com/retrobridgeapp/retrobridge">View source</a>
+    </div>
+    <p class="platforms mono">macOS · Windows · Linux &nbsp;/&nbsp; GPL-3.0 · no account, no server, no scraping</p>
+    <div class="value-strip">
+      <span>Reads the card in seconds</span>
+      <span>Backs up saves automatically</span>
+      <span>Share collections by link</span>
+      <span>Works over Wi-Fi</span>
+    </div>
+  </section>
+
+  <section class="wrap showcase">
+    <div class="slideshow" data-slideshow>
+      <div class="slide-stage" aria-live="polite">
+        <figure class="slide active" data-cap="Every game on the card, matched to its box art.">
+          <img src="assets/games.png" alt="RetroBridge games view: 23 systems, 7927 games, Game Boy Advance covers, Advance Wars shown as verified" width="1600" height="1136" />
+        </figure>
+        <figure class="slide" data-cap="A collection you can share as a link or a file.">
+          <img src="assets/collection.png" alt="A collection called June's List with a Share a link and Save file menu, its games marked on card" width="1600" height="1136" loading="lazy" />
+        </figure>
+        <figure class="slide" data-cap="Focus mode shows what it will add and remove before it runs.">
+          <img src="assets/focus-mode.png" alt="The Sync collection dialog with keep, add, and remove counts and a note that saves are backed up first" width="1600" height="1136" loading="lazy" />
+        </figure>
+        <figure class="slide" data-cap="Every save and state, and which ones aren't backed up yet.">
+          <img src="assets/save.png" alt="Saves and states view with an SD Card and Vault toggle and per-game save and state counts" width="1600" height="1136" loading="lazy" />
+        </figure>
+        <figure class="slide" data-cap="It recognizes the card's firmware when you plug it in.">
+          <img src="assets/start.png" alt="A setup dialog after RetroBridge recognized the card as OnionOS" width="1600" height="1136" loading="lazy" />
+        </figure>
+      </div>
+      <button class="nav-btn nav-prev" type="button" aria-label="Previous screenshot">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <button class="nav-btn nav-next" type="button" aria-label="Next screenshot">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <div class="slide-meta">
+        <p class="slide-cap" data-slide-cap>Every game on the card, matched to its box art.</p>
+        <div class="dots" data-dots></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <p class="eyebrow">Features</p>
+    <h2>What it does.</h2>
+    <p class="section-lead">The things you'd otherwise do by hand in a file manager, in one app. None of
+    them overwrite a save without backing it up first.</p>
+    <div class="grid">
+      <div class="card">
+        <span class="tag">SEE</span>
+        <h3>See what's on the card</h3>
+        <p>Plug in and RetroBridge lists the systems, games, saves, and free space. It checks each game
+        by hash against the No-Intro and Redump databases, so the filenames don't have to be right.</p>
+      </div>
+      <div class="card">
+        <span class="tag">COLLECTIONS</span>
+        <h3>Build collections</h3>
+        <p>Group games into a collection and RetroBridge writes it in your firmware's own format, so it
+        shows up in the handheld's menu. Nothing to install on the device.</p>
+      </div>
+      <div class="card">
+        <span class="tag">FOCUS</span>
+        <h3>Sync a set to the card</h3>
+        <p>Focus mode adds the games that are missing and removes the ones that aren't on the list, in
+        one pass. It backs up saves first, and you can undo each step.</p>
+      </div>
+      <div class="card">
+        <span class="tag">SETTINGS</span>
+        <h3>Carry settings between cards</h3>
+        <p>Per-game emulator settings and shaders can travel inside a collection and apply to another
+        card. Private values are removed before anything leaves your machine.</p>
+      </div>
+      <div class="card">
+        <span class="tag">WI-FI</span>
+        <h3>Connect over Wi-Fi</h3>
+        <p>Browse, identify, and plan over FTP or SFTP without a card reader. Writing to the card still
+        needs a cable.</p>
+      </div>
+      <div class="card">
+        <span class="tag">VAULT</span>
+        <h3>Back up saves</h3>
+        <p>When you open a card, RetroBridge copies each save to a Vault on your PC and matches it to its
+        game by hash. A dot shows whether each one is backed up, in sync, or out of sync.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap split">
+      <div class="body">
+        <p class="eyebrow">Collections &amp; sharing</p>
+        <h2>Share collections as a link.</h2>
+        <p>A collection is a list of game fingerprints, <strong>not the ROMs</strong>, so nothing
+        copyrighted is shared. Send someone a link and they can see which of the games they already have
+        and which they're missing.</p>
+        <p>Your collections stay yours to edit. If someone changes one, they get their own copy that
+        still credits you. You can also browse what people have posted in the gallery.</p>
+        <div class="cta">
+          <a class="btn ghost" href="collections.html">Browse the gallery</a>
+        </div>
+      </div>
+      <div class="mini-gallery" aria-hidden="true">
+        <div class="tile" style="--tileA:#2d6cff;--tileB:#7c5cff"></div>
+        <div class="tile" style="--tileA:#1c9e5a;--tileB:#0d9488"></div>
+        <div class="tile" style="--tileA:#e05661;--tileB:#d9822b"></div>
+        <div class="tile" style="--tileA:#9333ea;--tileB:#2d6cff"></div>
+        <div class="tile" style="--tileA:#d9822b;--tileB:#b45309"></div>
+        <div class="tile" style="--tileA:#0d9488;--tileB:#57d9e0"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap trust">
+    <div class="trust-card">
+      <div class="trust-head">
+        <p class="eyebrow">Saves</p>
+        <h2>It backs up before it writes.</h2>
+      </div>
+      <p class="note">Losing a save is the worst thing an app like this could do, so RetroBridge backs up
+      before it writes and keeps a way to undo. That's what makes it safe to add and remove games. Every
+      write goes through the same steps:</p>
+      <div class="pipeline" role="img" aria-label="Every write: back up, then remove, then add, then roll back on any failure">
+        <span class="step back">back up</span><span class="sep">/</span>
+        <span class="step">remove</span><span class="sep">/</span>
+        <span class="step">add</span><span class="sep">/</span>
+        <span class="step">roll back on any failure</span>
+      </div>
+      <div class="trust-points">
+        <div>
+          <h4>Reading can't write</h4>
+          <p>Browsing, identifying, and planning can't change the card. Only the sync step writes to it.</p>
+        </div>
+        <div>
+          <h4>It keeps restore points</h4>
+          <p>Anything removed or overwritten is copied to your PC first, and one click puts it back.</p>
+        </div>
+        <div>
+          <h4>Tested for failures</h4>
+          <p>The test suite pulls the cable mid-sync and checks the card comes back unchanged.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <p class="eyebrow">Compatibility</p>
+    <h2>Works with your firmware.</h2>
+    <p class="fw-note">RetroBridge detects which custom firmware a card runs and adapts to its layout.
+    Each firmware is a small data profile, not code, so new ones can be added without an app update, and
+    you can write one yourself if yours isn't covered.</p>
+    <div class="chips">
+      <span class="chip">OnionOS</span>
+      <span class="chip">muOS</span>
+      <span class="chip">Knulli</span>
+      <span class="chip">NextUI</span>
+      <span class="chip">spruce</span>
+      <span class="chip you">+ write your own</span>
+    </div>
+  </section>
+
+  <section class="wrap section closer">
+    <h2>Download RetroBridge</h2>
+    <p>Free and open source. It won't write to your card without a backup and a way to undo.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/retrobridgeapp/retrobridge/releases/latest">Download</a>
+      <a class="btn ghost" href="collections.html">Browse shared collections</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="row">
+      <a href="https://github.com/retrobridgeapp/retrobridge">Source</a>
+      <a href="https://github.com/retrobridgeapp/retrobridge/releases/latest">Releases</a>
+      <a href="https://github.com/retrobridgeapp/retrobridge/issues">Report an issue</a>
+      <a href="https://github.com/retrobridgeapp/retrobridge/blob/main/CONTRIBUTING.md">Contribute</a>
+    </div>
+    <p class="fine">RetroBridge is free software, GPL-3.0. Game titles and box art shown in screenshots
+    belong to their respective owners.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.querySelector('[data-slideshow]');
+  if (!root) return;
+  var slides = Array.prototype.slice.call(root.querySelectorAll('.slide'));
+  var dotsWrap = root.querySelector('[data-dots]');
+  var capEl = root.querySelector('[data-slide-cap]');
+  var i = 0, timer = null;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var dots = slides.map(function (s, idx) {
+    var d = document.createElement('button');
+    d.className = 'dot';
+    d.type = 'button';
+    d.setAttribute('aria-label', 'Go to screenshot ' + (idx + 1));
+    d.addEventListener('click', function () { go(idx); restart(); });
+    dotsWrap.appendChild(d);
+    return d;
+  });
+
+  function go(n) {
+    i = (n + slides.length) % slides.length;
+    slides.forEach(function (s, idx) {
+      var active = idx === i;
+      s.classList.toggle('active', active);
+      s.setAttribute('aria-hidden', active ? 'false' : 'true');
+    });
+    dots.forEach(function (d, idx) { d.setAttribute('aria-current', idx === i ? 'true' : 'false'); });
+    var cap = slides[i].getAttribute('data-cap');
+    if (cap && capEl) capEl.textContent = cap;
+  }
+  function next() { go(i + 1); }
+  function prev() { go(i - 1); }
+  function start() { if (!reduce) timer = window.setInterval(next, 5500); }
+  function stop() { if (timer) { window.clearInterval(timer); timer = null; } }
+  function restart() { stop(); start(); }
+
+  root.querySelector('.nav-next').addEventListener('click', function () { next(); restart(); });
+  root.querySelector('.nav-prev').addEventListener('click', function () { prev(); restart(); });
+  root.addEventListener('mouseenter', stop);
+  root.addEventListener('mouseleave', start);
+  root.addEventListener('focusin', stop);
+  root.addEventListener('focusout', start);
+  root.setAttribute('tabindex', '0');
+  root.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { next(); restart(); }
+    else if (e.key === 'ArrowLeft') { prev(); restart(); }
+  });
+
+  go(0);
+  start();
+})();
+</script>
+
+</body>
+</html>

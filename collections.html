@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shared collections - RetroBridge</title>
+<meta name="description" content="Browse collections other RetroBridge users have chosen to share publicly. Each one is a list of game fingerprints, never files." />
+<meta property="og:title" content="RetroBridge collections" />
+<meta property="og:description" content="Collections people chose to share publicly. Copy a link and import it in RetroBridge to see what you already have." />
+<meta property="og:image" content="https://retrobridgeapp.github.io/assets/collection.png" />
+<link rel="icon" href="assets/icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --paper: #fafbfc; --surface: #ffffff; --ink: #16181d; --muted: #475569;
+  --accent: #2d6cff; --accent-ink: #ffffff; --line: #e4e8ee; --line2: #d3dae3;
+  --ok: #1c9e5a; --ok-bg: #e8f7ef; --warn-ink: #8a6d1f; --warn-bg: #faf3dd;
+  --danger: #c53030; --danger-bg: #fdecec;
+  --chip-bg: #eef2f7; --shadow: 0 1px 2px rgba(22,24,29,.05), 0 12px 32px -12px rgba(22,24,29,.18);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0f1216; --surface: #161a20; --ink: #eceff3; --muted: #98a2b0;
+    --accent: #5b8cff; --accent-ink: #0f1216; --line: #262c35; --line2: #333b47;
+    --ok: #3ecf8e; --ok-bg: #12291d; --warn-ink: #d9b44a; --warn-bg: #2a2413;
+    --danger: #ff6b6b; --danger-bg: #3a1414;
+    --chip-bg: #1d232b; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px -12px rgba(0,0,0,.6);
+  }
+}
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+[hidden] { display: none !important; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 400 17px/1.6 "Hanken Grotesk", -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important; scroll-behavior: auto !important;
+  }
+}
+
+.nav { display: flex; align-items: center; gap: 12px; padding: 20px 0; }
+.nav .brand { display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; }
+.nav .brand:hover { text-decoration: none; }
+.nav img { width: 34px; height: 34px; border-radius: 8px; }
+.nav .name { font-weight: 700; font-size: 18px; letter-spacing: -.01em; color: var(--ink); }
+.nav .links { margin-left: auto; display: flex; gap: 22px; align-items: center; font-weight: 600; font-size: 15px; }
+.nav .links a { color: var(--muted); transition: color 180ms ease; }
+.nav .links a:hover { color: var(--ink); text-decoration: none; }
+.nav .links a.dl { color: var(--accent); }
+.nav .links a.current { color: var(--ink); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; padding: 13px 22px;
+  font-weight: 700; font-size: 16px; letter-spacing: .01em; border: 1px solid transparent;
+  min-height: 44px; cursor: pointer;
+  transition: filter 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { text-decoration: none; filter: brightness(1.06); }
+.btn.ghost { border-color: var(--line2); color: var(--ink); background: var(--surface); }
+.btn.ghost:hover { text-decoration: none; border-color: var(--muted); }
+button.btn { appearance: none; -webkit-appearance: none; font-family: inherit; cursor: pointer; }
+.btn-sm { padding: 8px 14px; font-size: 13.5px; border-radius: 8px; min-height: 44px; }
+.btn-sm:disabled { opacity: .6; cursor: default; }
+.btn-sm:disabled:hover { border-color: var(--line2); }
+
+.page-head { padding: 64px 0 8px; }
+.page-head h1 { font-size: clamp(30px, 4.2vw, 42px); font-weight: 800; letter-spacing: -.02em; text-wrap: balance; }
+.page-head .sub { margin-top: 14px; color: var(--muted); font-size: 18px; max-width: 62ch; }
+
+.toolbar-wrap { padding: 24px 0 8px; }
+.toolbar { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+.toolbar-row { display: flex; align-items: center; gap: 14px; }
+.toolbar-row-main { justify-content: space-between; }
+.toolbar-row-chips {
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line);
+  flex-wrap: wrap; justify-content: flex-start; gap: 10px;
+}
+
+.search-field { position: relative; flex: 1 1 auto; min-width: 0; display: flex; align-items: center; }
+.search-field svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.search-input {
+  width: 100%; padding: 11px 14px 11px 40px; border-radius: 10px; min-height: 44px;
+  border: 1px solid var(--line2); background: var(--paper); color: var(--ink);
+  font: 400 15px "Hanken Grotesk", sans-serif; transition: border-color 180ms ease;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-input:hover { border-color: var(--muted); }
+.search-input:focus-visible { border-color: var(--accent); }
+
+.segmented { display: flex; background: var(--chip-bg); border-radius: 10px; padding: 3px; gap: 2px; flex: 0 0 auto; }
+.seg-btn {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .02em; color: var(--muted);
+  background: transparent; border: none; border-radius: 8px; padding: 8px 14px;
+  min-height: 44px; cursor: pointer; appearance: none; -webkit-appearance: none;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+.seg-btn:hover { color: var(--ink); }
+.seg-btn.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.seg-btn:focus-visible { border-radius: 8px; }
+
+.chip-filter-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; flex: 1 1 auto; }
+.pill {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--line2); border-radius: 999px;
+  padding: 8px 14px; min-height: 44px; display: inline-flex; align-items: center;
+  cursor: pointer; appearance: none; -webkit-appearance: none;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+.pill:hover { border-color: var(--muted); }
+.pill.active { border-color: var(--accent); color: var(--accent); }
+.pill:focus-visible { border-radius: 999px; }
+
+.text-btn {
+  background: none; border: none; color: var(--muted); font-weight: 600; font-size: 13px;
+  font-family: inherit; cursor: pointer; padding: 10px 6px; min-height: 44px;
+  display: inline-flex; align-items: center; appearance: none; -webkit-appearance: none;
+  transition: color 180ms ease;
+}
+.text-btn:hover { color: var(--ink); }
+.text-btn:disabled { opacity: .6; cursor: default; }
+.text-btn:disabled:hover { color: var(--muted); }
+.text-btn:focus-visible { border-radius: 6px; }
+#clearBtn { margin-left: auto; }
+
+.gallery { padding: 24px 0 96px; }
+.state-msg { text-align: center; padding: 80px 24px; color: var(--muted); font-size: 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.state-msg-btn { margin-top: 4px; }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 8px; }
+
+.coll-card {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px; font-family: inherit; font-size: inherit; color: var(--ink);
+  cursor: pointer; appearance: none; -webkit-appearance: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.coll-card:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+.coll-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 14px; }
+
+.card-tile { flex: 0 0 56px; width: 56px; height: 56px; border-radius: 10px; position: relative; overflow: hidden; }
+
+.card-body { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px; }
+.card-title { display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-author { display: block; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-stats { display: block; font-size: 12px; color: var(--muted); }
+.card-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.chip { font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--muted); background: var(--chip-bg); border-radius: 6px; padding: 4px 8px; }
+
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex;
+  align-items: center; justify-content: center; padding: 24px; z-index: 100;
+}
+.modal {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+  box-shadow: var(--shadow); width: 100%; max-width: 560px; max-height: 80vh;
+  min-height: 0; display: flex; flex-direction: column; padding: 24px; position: relative;
+}
+.modal:focus { outline: none; }
+.modal-close {
+  position: absolute; top: 14px; right: 14px; width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center; background: transparent;
+  border: none; border-radius: 10px; color: var(--muted); cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+.modal-close:hover { background: var(--chip-bg); color: var(--ink); }
+.modal-close:focus-visible { border-radius: 10px; }
+
+.modal-header { display: flex; gap: 18px; align-items: center; padding-right: 40px; }
+.modal-tile { width: 92px; height: 92px; border-radius: 16px; flex: 0 0 92px; position: relative; overflow: hidden; }
+.modal-head-text { min-width: 0; }
+.modal-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; overflow-wrap: break-word; }
+.modal-meta { font-size: 14px; color: var(--muted); }
+.modal-imports { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+
+.modal-notes { margin-top: 18px; font-size: 14.5px; color: var(--ink); line-height: 1.6; }
+
+.modal-actions { margin-top: 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.modal-hint { margin-top: 12px; font-size: 12.5px; color: var(--muted); }
+
+.modal-admin-actions { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; padding-left: 10px; border-left: 1px solid var(--line); }
+.btn.muted { border-style: dashed; color: var(--muted); }
+.btn.muted:hover { border-color: var(--muted); color: var(--ink); background: var(--chip-bg); }
+.btn.danger { border-color: var(--danger); color: var(--danger); background: var(--surface); }
+.btn.danger:hover { background: var(--danger-bg); border-color: var(--danger); text-decoration: none; }
+.modal-admin-msg { margin-top: 10px; font-size: 12.5px; color: var(--danger); }
+
+.admin-bar {
+  position: fixed; right: 16px; bottom: 16px; z-index: 90;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; max-width: min(92vw, 360px);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 12px; box-shadow: var(--shadow); font-size: 12.5px;
+}
+.admin-status { color: var(--muted); font-weight: 600; white-space: nowrap; }
+.admin-key-input {
+  flex: 1 1 140px; min-width: 120px; padding: 8px 10px; border-radius: 8px;
+  border: 1px solid var(--line2); background: var(--paper); color: var(--ink);
+  font: 400 12.5px "IBM Plex Mono", ui-monospace, monospace;
+}
+.admin-key-input::placeholder { color: var(--muted); }
+.admin-key-input:focus-visible { border-color: var(--accent); }
+.admin-msg { flex: 1 1 100%; color: var(--danger); font-size: 12px; }
+
+.report-btn { font-size: 12px; font-weight: 600; padding: 8px 8px; min-height: 36px; }
+.report-btn:hover { color: var(--danger); }
+
+.admin-review-toggle { position: relative; }
+.admin-review-count {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px;
+  padding: 0 5px; margin-left: 6px; border-radius: 999px; background: var(--danger); color: #fff;
+  font-size: 11px; font-weight: 700;
+}
+.admin-review {
+  position: fixed; right: 16px; bottom: 74px; z-index: 91; width: min(92vw, 360px);
+  max-height: min(60vh, 460px); overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: var(--shadow); padding: 12px;
+}
+.admin-review h3 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.review-row { border-top: 1px solid var(--line); padding: 10px 0; }
+.review-row:first-of-type { border-top: none; }
+.review-title { font-size: 13.5px; font-weight: 600; overflow-wrap: break-word; }
+.review-title-btn {
+  display: block; width: 100%; text-align: left; background: none; border: none; padding: 0;
+  font: 600 13.5px/1.4 inherit; color: var(--accent); cursor: pointer; overflow-wrap: break-word;
+}
+.review-title-btn:hover { text-decoration: underline; }
+.review-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.review-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.review-empty { font-size: 12.5px; color: var(--muted); padding: 6px 0; }
+.review-btn { font-size: 12px; padding: 6px 10px; min-height: 36px; border-radius: 8px; }
+
+.modal-games { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.modal-game-count { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+.modal-game-list { overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+.game-group-header {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--muted); padding: 10px 0 6px;
+}
+.game-group-header:first-child { padding-top: 0; }
+.game-row { font-size: 14px; padding: 6px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-bottom: 1px solid var(--line); }
+.game-row:last-child { border-bottom: none; }
+.modal-error, .modal-empty-note { color: var(--muted); font-size: 14px; padding: 12px 0; }
+
+.skeleton-wrap { display: flex; flex-direction: column; gap: 8px; }
+.skeleton-line {
+  display: block; height: 14px; border-radius: 6px;
+  background: linear-gradient(90deg, var(--chip-bg) 25%, var(--line2) 37%, var(--chip-bg) 63%);
+  background-size: 400% 100%; animation: skeleton-shimmer 1.4s ease infinite;
+}
+.modal-notes .skeleton-line { width: 90%; }
+.game-skeleton { width: 95%; }
+.game-skeleton:nth-child(3n) { width: 70%; }
+.game-skeleton:nth-child(3n+2) { width: 85%; }
+@keyframes skeleton-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+.footer { border-top: 1px solid var(--line); padding: 40px 0 56px; font-size: 14px; color: var(--muted); }
+.footer .row { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+.footer .row a { color: var(--muted); font-weight: 600; transition: color 180ms ease; }
+.footer .row a:hover { color: var(--ink); }
+.footer .fine { margin-top: 18px; max-width: 70ch; font-size: 13px; }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .toolbar-row-main { flex-direction: column; align-items: stretch; }
+  .segmented { width: 100%; }
+  .seg-btn { flex: 1 1 0; justify-content: center; }
+}
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .modal { padding: 18px; max-height: 86vh; }
+  .modal-close { top: 10px; right: 10px; }
+}
+</style>
+</head>
+<body>
+
+<header class="wrap nav">
+  <a class="brand" href="index.html">
+    <img src="assets/icon.png" alt="" />
+    <span class="name">RetroBridge</span>
+  </a>
+  <nav class="links">
+    <a class="current" href="collections.html" aria-current="page">Collections</a>
+    <a href="https://github.com/retrobridgeapp/retrobridge">GitHub</a>
+    <a class="dl" href="https://github.com/retrobridgeapp/retrobridge/releases/latest">Download</a>
+  </nav>
+</header>
+
+<main>
+  <section class="wrap page-head">
+    <h1>Shared collections</h1>
+    <p class="sub">Collections people chose to share publicly. Each one is a list of game
+    fingerprints, never files. Copy a link and import it in RetroBridge to see what you
+    already have.</p>
+  </section>
+
+  <section class="wrap toolbar-wrap">
+    <div class="toolbar">
+      <div class="toolbar-row toolbar-row-main">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <label for="search" class="mono" style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);">Search collections</label>
+          <input id="search" class="search-input" type="text" placeholder="Search by title, author, or system" autocomplete="off" />
+        </div>
+        <div id="sortControl" class="segmented" role="group" aria-label="Sort by"></div>
+      </div>
+      <div class="toolbar-row toolbar-row-chips" id="chipsSection" hidden>
+        <div id="systemChips" class="chip-filter-row"></div>
+        <button id="clearBtn" class="text-btn" type="button" hidden>Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap gallery">
+    <div id="state" class="state-msg" hidden></div>
+    <div id="grid" class="grid"></div>
+  </section>
+</main>
+
+<div id="modalBackdrop" class="modal-backdrop" hidden>
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
+    <button id="modalClose" class="modal-close" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <div class="modal-header">
+      <div id="modalTile" class="modal-tile"></div>
+      <div class="modal-head-text">
+        <h2 id="modalTitle" class="modal-title"></h2>
+        <p id="modalMeta" class="modal-meta"></p>
+        <p id="modalImports" class="modal-imports mono" hidden></p>
+      </div>
+    </div>
+    <div id="modalNotes" class="modal-notes" hidden></div>
+    <div class="modal-actions">
+      <button id="modalCopy" class="btn primary btn-sm" type="button">Copy import link</button>
+      <button id="modalDownload" class="btn ghost btn-sm" type="button">Download</button>
+      <button id="modalReport" class="text-btn report-btn" type="button">Report</button>
+      <span id="modalAdminActions" class="modal-admin-actions" hidden>
+        <button id="modalDelist" class="btn muted btn-sm" type="button">Delist</button>
+        <button id="modalDelete" class="btn danger btn-sm" type="button">Delete</button>
+      </span>
+    </div>
+    <p id="modalAdminMsg" class="modal-admin-msg" hidden></p>
+    <p class="modal-hint">Paste the link in RetroBridge under Collections, Import, From link.</p>
+    <div class="modal-games">
+      <p id="modalGameCount" class="modal-game-count mono"></p>
+      <div id="modalGameList" class="modal-game-list"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="row">
+      <a href="https://github.com/retrobridgeapp/retrobridge">Source</a>
+      <a href="https://github.com/retrobridgeapp/retrobridge/releases/latest">Releases</a>
+      <a href="https://github.com/retrobridgeapp/retrobridge/issues">Report an issue</a>
+      <a href="https://github.com/retrobridgeapp/retrobridge/blob/main/CONTRIBUTING.md">Contribute</a>
+    </div>
+    <p class="fine">RetroBridge is free software, GPL-3.0. Game titles shown in screenshots belong to
+    their respective owners.</p>
+  </div>
+</footer>
+
+<!-- Hidden operator panel. Only revealed via the #admin hash, or automatically once an
+     admin key is already stored in this browser's localStorage. Normal visitors never
+     see this and never trigger it. -->
+<div id="adminReview" class="admin-review" hidden>
+  <h3>Reported collections</h3>
+  <div id="adminReviewList"></div>
+</div>
+<div id="adminBar" class="admin-bar mono" hidden>
+  <span id="adminStatus" class="admin-status" hidden>Admin mode on</span>
+  <button id="adminReviewToggle" class="btn ghost btn-sm admin-review-toggle" type="button" hidden>
+    Review<span id="adminReviewCount" class="admin-review-count" hidden>0</span>
+  </button>
+  <input id="adminKeyInput" class="admin-key-input" type="password" placeholder="Admin key" autocomplete="off" hidden />
+  <button id="adminKeySave" class="btn ghost btn-sm" type="button" hidden>Save key</button>
+  <button id="adminSignOut" class="btn ghost btn-sm" type="button" hidden>Sign out admin</button>
+  <span id="adminMsg" class="admin-msg" hidden></span>
+</div>
+
+<script>
+const WORKER_URL = 'https://retrobridge-share.retrobridge.workers.dev';
+const PALETTE = ['#2d6cff', '#7c5cff', '#1c9e5a', '#e05661', '#d9822b', '#9333ea', '#0d9488', '#b45309'];
+const MDOT = String.fromCharCode(183);
+const queryParams = new URLSearchParams(window.location.search);
+const useMock = queryParams.get('mock') === '1';
+
+function hashString(value) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 31 + value.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+function paletteColors(value) {
+  const h = hashString(value);
+  const first = h % PALETTE.length;
+  const second = (h + 3) % PALETTE.length;
+  return [PALETTE[first], PALETTE[second]];
+}
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function slugify(value) {
+  const slug = String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return slug || 'collection';
+}
+
+function formatShortDate(value) {
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return '';
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function buildStatsText(gameCount, importCount) {
+  let text = gameCount + ' games';
+  if (importCount > 0) {
+    text += ' ' + MDOT + ' ' + importCount + ' imports';
+  }
+  return text;
+}
+
+function buildCardChips(systems) {
+  const wrap = el('div', 'card-chips');
+  const visible = systems.slice(0, 3);
+  visible.forEach(function (system) {
+    wrap.appendChild(el('span', 'chip mono', String(system)));
+  });
+  if (systems.length > 3) {
+    wrap.appendChild(el('span', 'chip mono', '+' + (systems.length - 3)));
+  }
+  return wrap;
+}
+
+function buildCard(item) {
+  const title = typeof item.title === 'string' && item.title ? item.title : 'Untitled collection';
+  const author = typeof item.author === 'string' && item.author ? item.author : 'unknown';
+  const gameCount = Number(item.games) || 0;
+  const importCount = Number(item.imports) || 0;
+  const systems = Array.isArray(item.systems) ? item.systems : [];
+
+  const card = el('button', 'coll-card');
+  card.type = 'button';
+  card.setAttribute('aria-haspopup', 'dialog');
+
+  const tile = el('span', 'card-tile');
+  tile.dataset.collId = item.id;
+  const [colorOne, colorTwo] = paletteColors(title);
+  tile.style.background = 'linear-gradient(135deg, ' + colorOne + ', ' + colorTwo + ')';
+  card.appendChild(tile);
+
+  const body = el('span', 'card-body');
+  body.appendChild(el('span', 'card-title', title));
+  body.appendChild(el('span', 'card-author', 'by ' + author));
+  body.appendChild(el('span', 'card-stats mono', buildStatsText(gameCount, importCount)));
+  if (systems.length) {
+    body.appendChild(buildCardChips(systems));
+  }
+  card.appendChild(body);
+
+  card.addEventListener('click', function () {
+    openDetail(item.id, card);
+  });
+
+  coverObserver.observe(tile);
+
+  return card;
+}
+
+// Loads a card's cover lazily: only when it scrolls into view does it call
+// fetchDetail (cached, so this reuses the per-collection detail fetch), then
+// renders the cover via img.src if valid. Unobserved once loaded so each
+// card fetches its detail at most once.
+const coverObserver = new IntersectionObserver(function (entries) {
+  entries.forEach(function (entry) {
+    if (!entry.isIntersecting) return;
+    const tile = entry.target;
+    coverObserver.unobserve(tile);
+    const id = tile.dataset.collId;
+    if (!id) return;
+    fetchDetail(id).then(function (data) {
+      applyCoverImage(tile, data && data.cover);
+    }).catch(function () {});
+  });
+}, { rootMargin: '200px 0px' });
+
+const gridEl = document.getElementById('grid');
+const stateEl = document.getElementById('state');
+const searchInput = document.getElementById('search');
+const chipsSectionEl = document.getElementById('chipsSection');
+const chipsListEl = document.getElementById('systemChips');
+const clearBtnEl = document.getElementById('clearBtn');
+const sortRowEl = document.getElementById('sortControl');
+
+const modalBackdropEl = document.getElementById('modalBackdrop');
+const modalEl = document.getElementById('modal');
+const modalCloseEl = document.getElementById('modalClose');
+const modalTileEl = document.getElementById('modalTile');
+const modalTitleEl = document.getElementById('modalTitle');
+const modalMetaEl = document.getElementById('modalMeta');
+const modalImportsEl = document.getElementById('modalImports');
+const modalNotesEl = document.getElementById('modalNotes');
+const modalCopyEl = document.getElementById('modalCopy');
+const modalDownloadEl = document.getElementById('modalDownload');
+const modalReportEl = document.getElementById('modalReport');
+const modalGameCountEl = document.getElementById('modalGameCount');
+const modalGameListEl = document.getElementById('modalGameList');
+const modalAdminActionsEl = document.getElementById('modalAdminActions');
+const modalDelistEl = document.getElementById('modalDelist');
+const modalDeleteEl = document.getElementById('modalDelete');
+const modalAdminMsgEl = document.getElementById('modalAdminMsg');
+
+const adminBarEl = document.getElementById('adminBar');
+const adminStatusEl = document.getElementById('adminStatus');
+const adminKeyInputEl = document.getElementById('adminKeyInput');
+const adminKeySaveEl = document.getElementById('adminKeySave');
+const adminSignOutEl = document.getElementById('adminSignOut');
+const adminMsgEl = document.getElementById('adminMsg');
+const adminReviewToggleEl = document.getElementById('adminReviewToggle');
+const adminReviewCountEl = document.getElementById('adminReviewCount');
+const adminReviewEl = document.getElementById('adminReview');
+const adminReviewListEl = document.getElementById('adminReviewList');
+
+const SORT_OPTIONS = [
+  { key: 'newest', label: 'Newest' },
+  { key: 'imports', label: 'Most imported' },
+  { key: 'games', label: 'Most games' }
+];
+
+let allItems = [];
+let systemCounts = [];
+let chipsExpanded = false;
+let currentSort = 'newest';
+const activeSystems = new Set();
+
+let currentOpenId = null;
+let lastFocusedEl = null;
+const detailCache = new Map();
+
+// Admin key lives only in this browser's localStorage and is only ever sent to
+// WORKER_URL, as a Bearer token, for the /admin routes below. It is never logged.
+// The panel itself is hidden behind the #admin hash so normal visitors never see it.
+const ADMIN_KEY_STORAGE = 'rb_admin_key';
+
+function getAdminKey() {
+  try {
+    return localStorage.getItem(ADMIN_KEY_STORAGE) || '';
+  } catch (err) {
+    return '';
+  }
+}
+
+function setAdminKey(key) {
+  try {
+    localStorage.setItem(ADMIN_KEY_STORAGE, key);
+  } catch (err) {}
+}
+
+function clearAdminKey() {
+  try {
+    localStorage.removeItem(ADMIN_KEY_STORAGE);
+  } catch (err) {}
+}
+
+function isAdminMode() {
+  return getAdminKey().length > 0;
+}
+
+function showAdminMsg(message) {
+  adminMsgEl.textContent = message;
+  adminMsgEl.hidden = false;
+}
+
+function hideAdminMsg() {
+  adminMsgEl.hidden = true;
+  adminMsgEl.textContent = '';
+}
+
+function showModalAdminMsg(message) {
+  modalAdminMsgEl.textContent = message;
+  modalAdminMsgEl.hidden = false;
+}
+
+function hideModalAdminMsg() {
+  modalAdminMsgEl.hidden = true;
+  modalAdminMsgEl.textContent = '';
+}
+
+function updateAdminModalActions() {
+  modalAdminActionsEl.hidden = !isAdminMode();
+}
+
+function renderAdminBar() {
+  const hashIsAdmin = window.location.hash === '#admin';
+  const hasKey = isAdminMode();
+  if (!hashIsAdmin && !hasKey) {
+    adminBarEl.hidden = true;
+    return;
+  }
+  adminBarEl.hidden = false;
+  if (hasKey) {
+    adminStatusEl.hidden = false;
+    adminKeyInputEl.hidden = true;
+    adminKeySaveEl.hidden = true;
+    adminSignOutEl.hidden = false;
+    adminReviewToggleEl.hidden = false;
+  } else {
+    adminStatusEl.hidden = true;
+    adminKeyInputEl.hidden = false;
+    adminKeySaveEl.hidden = false;
+    adminSignOutEl.hidden = true;
+    adminReviewToggleEl.hidden = true;
+    adminReviewEl.hidden = true;
+    adminReviewCountEl.hidden = true;
+  }
+}
+
+// Fetches the operator review queue (collections with at least one report) and
+// updates the badge count. Silent no-op if the key is missing or rejected.
+function refreshReports() {
+  const key = getAdminKey();
+  if (!key) return;
+  fetch(WORKER_URL + '/admin/reports', { headers: { Authorization: 'Bearer ' + key } })
+    .then(function (res) {
+      if (!res.ok) throw new Error('reports fetch failed');
+      return res.json();
+    })
+    .then(function (data) {
+      const items = Array.isArray(data.items) ? data.items : [];
+      reportedItems = items;
+      if (items.length > 0) {
+        adminReviewCountEl.textContent = String(items.length);
+        adminReviewCountEl.hidden = false;
+      } else {
+        adminReviewCountEl.hidden = true;
+      }
+      if (!adminReviewEl.hidden) renderReviewPanel();
+    })
+    .catch(function () {});
+}
+
+let reportedItems = [];
+
+function reviewMetaText(item) {
+  const reports = Number(item.reports) || 0;
+  const imports = Number(item.imports) || 0;
+  const status = item.listed ? 'listed' : 'hidden';
+  return reports + (reports === 1 ? ' report' : ' reports') + ' ' + MDOT + ' ' +
+    imports + ' imports ' + MDOT + ' ' + status;
+}
+
+function renderReviewPanel() {
+  adminReviewListEl.innerHTML = '';
+  if (!reportedItems.length) {
+    adminReviewListEl.appendChild(el('p', 'review-empty', 'No reports right now.'));
+    return;
+  }
+  reportedItems.forEach(function (item) {
+    const row = el('div', 'review-row');
+    const titleBtn = el('button', 'review-title-btn', (item.title || 'Untitled') + ' by ' + (item.author || 'unknown'));
+    titleBtn.type = 'button';
+    titleBtn.title = 'Open this collection';
+    titleBtn.addEventListener('click', function () { openDetail(item.id, titleBtn, item); });
+    row.appendChild(titleBtn);
+    row.appendChild(el('div', 'review-meta mono', reviewMetaText(item)));
+    const actions = el('div', 'review-actions');
+
+    const openBtn = el('button', 'btn ghost btn-sm review-btn', 'Open');
+    openBtn.type = 'button';
+    openBtn.addEventListener('click', function () { openDetail(item.id, openBtn, item); });
+    actions.appendChild(openBtn);
+
+    if (item.listed) {
+      const delistBtn = el('button', 'btn muted btn-sm review-btn', 'Delist');
+      delistBtn.type = 'button';
+      delistBtn.addEventListener('click', function () { reviewAction('delist', item.id); });
+      actions.appendChild(delistBtn);
+    } else {
+      const relistBtn = el('button', 'btn ghost btn-sm review-btn', 'Relist');
+      relistBtn.type = 'button';
+      relistBtn.addEventListener('click', function () { reviewAction('relist', item.id); });
+      actions.appendChild(relistBtn);
+    }
+
+    const deleteBtn = el('button', 'btn danger btn-sm review-btn', 'Delete');
+    deleteBtn.type = 'button';
+    deleteBtn.addEventListener('click', function () {
+      if (window.confirm('Delete this collection permanently? This cannot be undone.')) {
+        reviewAction('delete', item.id);
+      }
+    });
+    actions.appendChild(deleteBtn);
+
+    row.appendChild(actions);
+    adminReviewListEl.appendChild(row);
+  });
+}
+
+function reviewAction(kind, id) {
+  const key = getAdminKey();
+  if (!key) return;
+  const req = kind === 'delete'
+    ? { url: WORKER_URL + '/admin/c/' + encodeURIComponent(id), method: 'DELETE' }
+    : { url: WORKER_URL + '/admin/' + kind + '/' + encodeURIComponent(id), method: 'POST' };
+  fetch(req.url, { method: req.method, headers: { Authorization: 'Bearer ' + key } })
+    .then(function (res) {
+      if (!res.ok) throw new Error('admin action failed');
+      if (kind !== 'relist') removeItemFromList(id);
+      refreshReports();
+    })
+    .catch(function () {});
+}
+
+function toggleReviewPanel() {
+  const willShow = adminReviewEl.hidden;
+  adminReviewEl.hidden = !willShow;
+  if (willShow) {
+    renderReviewPanel();
+    refreshReports();
+  }
+}
+
+function saveAdminKey() {
+  const key = adminKeyInputEl.value.trim();
+  if (!key) return;
+  setAdminKey(key);
+  adminKeyInputEl.value = '';
+  hideAdminMsg();
+  // The hash only needs to reveal the panel once; the stored key persists from here.
+  if (window.location.hash === '#admin') {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+  renderAdminBar();
+  updateAdminModalActions();
+  refreshReports();
+}
+
+function signOutAdmin() {
+  clearAdminKey();
+  hideAdminMsg();
+  renderAdminBar();
+  updateAdminModalActions();
+}
+
+function removeItemFromList(id) {
+  allItems = allItems.filter(function (item) {
+    return item.id !== id;
+  });
+  detailCache.delete(id);
+  initFilters(allItems);
+  render();
+}
+
+function handleAdminActionFailure() {
+  // A 404 can mean a bad key, but it can just as easily be a transient network
+  // blip, so the key is left in place. If the key really is wrong, the operator
+  // can Sign out and re-enter it via #admin.
+  showModalAdminMsg('Admin action failed - key rejected or already gone.');
+}
+
+function adminDelist(id) {
+  const key = getAdminKey();
+  if (!key) return;
+  hideModalAdminMsg();
+  modalDelistEl.disabled = true;
+  fetch(WORKER_URL + '/admin/delist/' + encodeURIComponent(id), {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + key }
+  }).then(function (res) {
+    if (!res.ok) throw new Error('admin action failed');
+    removeItemFromList(id);
+    refreshReports();
+    closeDetail();
+  }).catch(function () {
+    modalDelistEl.disabled = false;
+    handleAdminActionFailure();
+  });
+}
+
+function adminDelete(id) {
+  const key = getAdminKey();
+  if (!key) return;
+  if (!window.confirm('Delete this collection permanently? This cannot be undone.')) return;
+  hideModalAdminMsg();
+  modalDeleteEl.disabled = true;
+  fetch(WORKER_URL + '/admin/c/' + encodeURIComponent(id), {
+    method: 'DELETE',
+    headers: { Authorization: 'Bearer ' + key }
+  }).then(function (res) {
+    if (!res.ok) throw new Error('admin action failed');
+    removeItemFromList(id);
+    refreshReports();
+    closeDetail();
+  }).catch(function () {
+    modalDeleteEl.disabled = false;
+    handleAdminActionFailure();
+  });
+}
+
+function showState(message) {
+  coverObserver.disconnect();
+  gridEl.innerHTML = '';
+  stateEl.innerHTML = '';
+  stateEl.appendChild(el('p', null, message));
+  stateEl.hidden = false;
+}
+
+function showNoMatchState() {
+  coverObserver.disconnect();
+  gridEl.innerHTML = '';
+  stateEl.innerHTML = '';
+  stateEl.appendChild(el('p', null, 'No collections match. Clear the filters to see everything.'));
+  const clearBtn = el('button', 'btn ghost btn-sm state-msg-btn', 'Clear filters');
+  clearBtn.type = 'button';
+  clearBtn.addEventListener('click', clearFilters);
+  stateEl.appendChild(clearBtn);
+  stateEl.hidden = false;
+}
+
+function showGrid(items) {
+  stateEl.hidden = true;
+  stateEl.innerHTML = '';
+  coverObserver.disconnect();
+  gridEl.innerHTML = '';
+  items.forEach(function (item) {
+    gridEl.appendChild(buildCard(item));
+  });
+}
+
+function computeSystemCounts(items) {
+  const counts = new Map();
+  items.forEach(function (item) {
+    const systems = Array.isArray(item.systems) ? item.systems : [];
+    systems.forEach(function (system) {
+      if (typeof system !== 'string' || !system) return;
+      counts.set(system, (counts.get(system) || 0) + 1);
+    });
+  });
+  return Array.from(counts.entries())
+    .map(function (entry) {
+      return { system: entry[0], count: entry[1] };
+    })
+    .sort(function (a, b) {
+      if (b.count !== a.count) return b.count - a.count;
+      return a.system.localeCompare(b.system);
+    });
+}
+
+function buildChip(entry) {
+  const btn = el('button', 'pill', entry.system + ' ' + entry.count);
+  btn.type = 'button';
+  const isActive = activeSystems.has(entry.system);
+  if (isActive) btn.classList.add('active');
+  btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  btn.addEventListener('click', function () {
+    if (activeSystems.has(entry.system)) {
+      activeSystems.delete(entry.system);
+    } else {
+      activeSystems.add(entry.system);
+    }
+    render();
+  });
+  return btn;
+}
+
+function renderChips() {
+  chipsListEl.innerHTML = '';
+  if (systemCounts.length <= 1) {
+    chipsSectionEl.hidden = true;
+    return;
+  }
+  chipsSectionEl.hidden = false;
+  const visibleLimit = 12;
+  const visible = chipsExpanded ? systemCounts : systemCounts.slice(0, visibleLimit);
+  visible.forEach(function (entry) {
+    chipsListEl.appendChild(buildChip(entry));
+  });
+  if (systemCounts.length > visibleLimit) {
+    const toggleBtn = el('button', 'pill', chipsExpanded ? 'less' : 'more');
+    toggleBtn.type = 'button';
+    toggleBtn.addEventListener('click', function () {
+      chipsExpanded = !chipsExpanded;
+      renderChips();
+    });
+    chipsListEl.appendChild(toggleBtn);
+  }
+  updateClearVisibility();
+}
+
+function renderSort() {
+  sortRowEl.innerHTML = '';
+  SORT_OPTIONS.forEach(function (opt) {
+    const btn = el('button', 'seg-btn', opt.label);
+    btn.type = 'button';
+    const isActive = opt.key === currentSort;
+    if (isActive) btn.classList.add('active');
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    btn.addEventListener('click', function () {
+      if (currentSort === opt.key) return;
+      currentSort = opt.key;
+      renderSort();
+      render();
+    });
+    sortRowEl.appendChild(btn);
+  });
+}
+
+function filterItems(items, term, systems) {
+  let result = items;
+  if (term) {
+    result = result.filter(function (item) {
+      const itemSystems = Array.isArray(item.systems) ? item.systems : [];
+      const haystack = [item.title, item.author].concat(itemSystems).join(' ').toLowerCase();
+      return haystack.includes(term);
+    });
+  }
+  if (systems.size) {
+    result = result.filter(function (item) {
+      const itemSystems = Array.isArray(item.systems) ? item.systems : [];
+      return itemSystems.some(function (system) {
+        return systems.has(system);
+      });
+    });
+  }
+  return result;
+}
+
+function sortItems(items, sortKey) {
+  const copy = items.slice();
+  if (sortKey === 'imports') {
+    copy.sort(function (a, b) {
+      const ai = Number(a.imports) || 0;
+      const bi = Number(b.imports) || 0;
+      if (bi !== ai) return bi - ai;
+      return new Date(b.created) - new Date(a.created);
+    });
+  } else if (sortKey === 'games') {
+    copy.sort(function (a, b) {
+      const ag = Number(a.games) || 0;
+      const bg = Number(b.games) || 0;
+      if (bg !== ag) return bg - ag;
+      return new Date(b.created) - new Date(a.created);
+    });
+  } else {
+    copy.sort(function (a, b) {
+      return new Date(b.created) - new Date(a.created);
+    });
+  }
+  return copy;
+}
+
+function updateClearVisibility() {
+  const hasFilter = searchInput.value.trim().length > 0 || activeSystems.size > 0;
+  clearBtnEl.hidden = !hasFilter;
+}
+
+function render() {
+  const term = searchInput.value.trim().toLowerCase();
+  const filtered = filterItems(allItems, term, activeSystems);
+  const sorted = sortItems(filtered, currentSort);
+  updateClearVisibility();
+  if (!sorted.length) {
+    showNoMatchState();
+    return;
+  }
+  showGrid(sorted);
+}
+
+function clearFilters() {
+  searchInput.value = '';
+  activeSystems.clear();
+  renderChips();
+  render();
+}
+
+function initFilters(items) {
+  systemCounts = computeSystemCounts(items);
+  chipsExpanded = false;
+  renderChips();
+}
+
+searchInput.addEventListener('input', render);
+clearBtnEl.addEventListener('click', clearFilters);
+
+const GAME_NAME_PARTS_A = ['Super', 'Mega', 'Ultra', 'Star', 'Dragon', 'Shadow', 'Crystal', 'Galaxy', 'Neo', 'Wonder', 'Chrono', 'Turbo', 'Iron', 'Silver', 'Golden', 'Lunar', 'Solar', 'Phantom', 'Mystic', 'Rebel'];
+const GAME_NAME_PARTS_B = ['Quest', 'Legends', 'Warriors', 'Odyssey', 'Kart', 'Fighter', 'Saga', 'Force', 'World', 'Rangers', 'Tactics', 'Rally', 'Story', 'Blast', 'Runner', 'Arena', 'Chronicles', 'Heroes', 'Rush', 'Kingdom'];
+
+function mockGameName(seed) {
+  const a = GAME_NAME_PARTS_A[seed % GAME_NAME_PARTS_A.length];
+  const b = GAME_NAME_PARTS_B[(seed * 7 + 3) % GAME_NAME_PARTS_B.length];
+  return a + ' ' + b;
+}
+
+function getMockDetail(id) {
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      const item = allItems.find(function (candidate) { return candidate.id === id; });
+      const systems = item && Array.isArray(item.systems) && item.systems.length ? item.systems : ['gba'];
+      const count = item ? Math.max(8, Math.min(20, Number(item.games) || 12)) : 12;
+      const games = [];
+      const seedBase = hashString(id);
+      for (let i = 0; i < count; i++) {
+        games.push({ name: mockGameName(seedBase + i * 13), system: systems[i % systems.length] });
+      }
+      resolve({
+        games: games,
+        notes: 'A hand-picked set curated for weekend sessions. Ripped and verified against No-Intro checksums.',
+        author: item ? item.author : 'unknown',
+        created: item ? item.created : new Date().toISOString()
+      });
+    }, 350);
+  });
+}
+
+function fetchDetail(id) {
+  if (detailCache.has(id)) return detailCache.get(id);
+  const promise = useMock
+    ? getMockDetail(id)
+    : fetch(WORKER_URL + '/c/' + encodeURIComponent(id)).then(function (res) {
+        if (!res.ok) throw new Error('bad response');
+        return res.json();
+      });
+  detailCache.set(id, promise);
+  promise.catch(function () {
+    detailCache.delete(id);
+  });
+  return promise;
+}
+
+function renderDetailHeader(item) {
+  const title = typeof item.title === 'string' && item.title ? item.title : 'Untitled collection';
+  const author = typeof item.author === 'string' && item.author ? item.author : 'unknown';
+  const importCount = Number(item.imports) || 0;
+
+  modalTitleEl.textContent = title;
+  const [colorOne, colorTwo] = paletteColors(title);
+  modalTileEl.style.background = 'linear-gradient(135deg, ' + colorOne + ', ' + colorTwo + ')';
+  clearDetailCover();
+
+  const dateStr = formatShortDate(item.created);
+  modalMetaEl.textContent = 'by ' + author + (dateStr ? ' ' + MDOT + ' ' + dateStr : '');
+
+  if (importCount > 0) {
+    modalImportsEl.textContent = importCount + ' imports';
+    modalImportsEl.hidden = false;
+  } else {
+    modalImportsEl.hidden = true;
+  }
+}
+
+function showDetailLoading() {
+  modalNotesEl.hidden = false;
+  modalNotesEl.innerHTML = '';
+  modalNotesEl.appendChild(el('span', 'skeleton-line', ''));
+
+  modalGameCountEl.textContent = '';
+  modalGameListEl.innerHTML = '';
+  const skeletonWrap = el('div', 'skeleton-wrap');
+  for (let i = 0; i < 6; i++) {
+    skeletonWrap.appendChild(el('span', 'skeleton-line game-skeleton', ''));
+  }
+  modalGameListEl.appendChild(skeletonWrap);
+}
+
+// Raster-only data URI, size-bounded. Mirrors isSafeCover in the share worker.
+// No svg (can carry script), no remote URL, no whitespace or markup can pass.
+var COVER_RE = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]{16,}={0,2}$/;
+
+// Renders a validated cover strictly via img.src (a property assignment,
+// never markup), so nothing in the cover string can reach the DOM as
+// HTML/CSS. Invalid or absent covers leave the tile's gradient in place.
+// Shared by the gallery cards and the detail modal tile.
+function applyCoverImage(tileEl, cover) {
+  if (typeof cover !== 'string' || cover.length > 200000 || !COVER_RE.test(cover)) return false;
+  var img = document.createElement('img');
+  img.alt = '';
+  img.decoding = 'async';
+  img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block';
+  img.src = cover;
+  tileEl.appendChild(img);
+  return true;
+}
+
+function clearDetailCover() {
+  var old = modalTileEl.querySelector('img');
+  if (old) old.remove();
+}
+
+function renderDetailCover(cover) {
+  clearDetailCover();
+  applyCoverImage(modalTileEl, cover);
+}
+
+function renderNotes(notes) {
+  modalNotesEl.innerHTML = '';
+  if (typeof notes === 'string' && notes.trim()) {
+    modalNotesEl.appendChild(el('p', null, notes));
+    modalNotesEl.hidden = false;
+  } else {
+    modalNotesEl.hidden = true;
+  }
+}
+
+function renderGameList(games) {
+  modalGameListEl.innerHTML = '';
+  if (!Array.isArray(games) || !games.length) {
+    modalGameCountEl.textContent = '0 games';
+    modalGameListEl.appendChild(el('p', 'modal-empty-note', 'No games listed.'));
+    return;
+  }
+
+  modalGameCountEl.textContent = games.length + ' games';
+
+  const groups = new Map();
+  games.forEach(function (game) {
+    const system = game && typeof game.system === 'string' && game.system ? game.system : 'unknown';
+    if (!groups.has(system)) groups.set(system, []);
+    groups.get(system).push(game);
+  });
+
+  const systemKeys = Array.from(groups.keys()).sort(function (a, b) {
+    return a.localeCompare(b);
+  });
+
+  systemKeys.forEach(function (system) {
+    const groupGames = groups.get(system).slice().sort(function (a, b) {
+      const an = typeof a.name === 'string' ? a.name : '';
+      const bn = typeof b.name === 'string' ? b.name : '';
+      return an.localeCompare(bn);
+    });
+    modalGameListEl.appendChild(el('p', 'game-group-header', system + ' (' + groupGames.length + ')'));
+    groupGames.forEach(function (game) {
+      const name = game && typeof game.name === 'string' && game.name ? game.name : 'Unknown title';
+      modalGameListEl.appendChild(el('p', 'game-row', name));
+    });
+  });
+}
+
+function showDetailError() {
+  modalNotesEl.hidden = true;
+  modalGameCountEl.textContent = '';
+  modalGameListEl.innerHTML = '';
+  modalGameListEl.appendChild(el('p', 'modal-error', 'Could not load this collection. Try again in a minute.'));
+}
+
+function setHashForOpen(id) {
+  const target = '#c/' + id;
+  if (window.location.hash === target) return;
+  window.location.hash = 'c/' + id;
+}
+
+function clearHash() {
+  if (!window.location.hash) return;
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+}
+
+// A browser remembers which collections it already reported, so the button
+// reflects it instead of inviting repeat clicks. The real one-report-per-IP
+// limit is enforced by the worker; this is just UI honesty.
+var REPORTED_STORAGE = 'rb_reported_ids';
+function getReportedIds() {
+  try { return JSON.parse(localStorage.getItem(REPORTED_STORAGE) || '[]'); } catch (e) { return []; }
+}
+function hasReported(id) { return getReportedIds().indexOf(id) !== -1; }
+function markReported(id) {
+  try {
+    var ids = getReportedIds();
+    if (ids.indexOf(id) === -1) { ids.push(id); localStorage.setItem(REPORTED_STORAGE, JSON.stringify(ids)); }
+  } catch (e) {}
+}
+function setReportButtonState(id) {
+  var done = hasReported(id);
+  modalReportEl.disabled = done;
+  modalReportEl.textContent = done ? 'Reported' : 'Report';
+}
+
+// itemOverride lets the admin review panel open a collection that isn't in the
+// public list (e.g. one already delisted), using the metadata it already has.
+function openDetail(id, triggerEl, itemOverride) {
+  const item = itemOverride || allItems.find(function (candidate) { return candidate.id === id; });
+  if (!item) return;
+
+  lastFocusedEl = triggerEl || document.activeElement;
+  currentOpenId = id;
+
+  renderDetailHeader(item);
+  modalCopyEl.textContent = 'Copy import link';
+  setReportButtonState(id);
+  modalDelistEl.disabled = false;
+  modalDeleteEl.disabled = false;
+  hideModalAdminMsg();
+  updateAdminModalActions();
+  showDetailLoading();
+
+  modalBackdropEl.hidden = false;
+  modalEl.focus();
+  setHashForOpen(id);
+
+  fetchDetail(id).then(function (data) {
+    if (currentOpenId !== id) return;
+    renderDetailCover(data && data.cover);
+    renderNotes(data && data.notes);
+    renderGameList(data && data.games);
+  }).catch(function () {
+    if (currentOpenId !== id) return;
+    showDetailError();
+  });
+}
+
+function closeDetail() {
+  if (modalBackdropEl.hidden) return;
+  modalBackdropEl.hidden = true;
+  currentOpenId = null;
+  clearHash();
+  const toFocus = lastFocusedEl;
+  lastFocusedEl = null;
+  if (toFocus && typeof toFocus.focus === 'function') {
+    toFocus.focus();
+  }
+}
+
+modalBackdropEl.addEventListener('click', function (event) {
+  if (event.target === modalBackdropEl) closeDetail();
+});
+modalCloseEl.addEventListener('click', closeDetail);
+document.addEventListener('keydown', function (event) {
+  if (event.key !== 'Escape') return;
+  if (!modalBackdropEl.hidden) closeDetail();
+});
+modalEl.addEventListener('keydown', function (event) {
+  if (event.key !== 'Tab') return;
+  const focusable = modalEl.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
+  const list = Array.prototype.filter.call(focusable, function (node) {
+    return !node.disabled && node.offsetParent !== null;
+  });
+  if (!list.length) return;
+  const first = list[0];
+  const last = list[list.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+});
+
+modalCopyEl.addEventListener('click', function () {
+  if (!currentOpenId) return;
+  const shareUrl = WORKER_URL + '/c/' + encodeURIComponent(currentOpenId);
+  navigator.clipboard.writeText(shareUrl).then(function () {
+    modalCopyEl.textContent = 'Copied';
+    setTimeout(function () {
+      modalCopyEl.textContent = 'Copy import link';
+    }, 1500);
+  });
+});
+
+modalDownloadEl.addEventListener('click', function () {
+  const id = currentOpenId;
+  if (!id) return;
+  fetchDetail(id).then(function (data) {
+    const item = allItems.find(function (candidate) { return candidate.id === id; });
+    const title = item && item.title ? item.title : 'collection';
+    const filename = slugify(title) + '.rbpl';
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 1000);
+  });
+});
+
+modalReportEl.addEventListener('click', function () {
+  const id = currentOpenId;
+  if (!id || hasReported(id)) return;
+  modalReportEl.disabled = true;
+  modalReportEl.textContent = 'Reported';
+  markReported(id);
+  fetch(WORKER_URL + '/api/report/' + encodeURIComponent(id), { method: 'POST' }).catch(function () {});
+});
+
+modalDelistEl.addEventListener('click', function () {
+  if (!currentOpenId) return;
+  adminDelist(currentOpenId);
+});
+
+modalDeleteEl.addEventListener('click', function () {
+  if (!currentOpenId) return;
+  adminDelete(currentOpenId);
+});
+
+adminKeySaveEl.addEventListener('click', saveAdminKey);
+adminKeyInputEl.addEventListener('keydown', function (event) {
+  if (event.key === 'Enter') saveAdminKey();
+});
+adminSignOutEl.addEventListener('click', signOutAdmin);
+adminReviewToggleEl.addEventListener('click', toggleReviewPanel);
+window.addEventListener('hashchange', renderAdminBar);
+
+window.addEventListener('hashchange', function () {
+  const match = /^#c\/(.+)$/.exec(window.location.hash);
+  if (!match) {
+    if (currentOpenId) closeDetail();
+    return;
+  }
+  const id = decodeURIComponent(match[1]);
+  if (id === currentOpenId) return;
+  const item = allItems.find(function (candidate) { return candidate.id === id; });
+  if (item) openDetail(id);
+});
+
+function tryOpenFromHash() {
+  const match = /^#c\/(.+)$/.exec(window.location.hash);
+  if (!match) return;
+  const id = decodeURIComponent(match[1]);
+  const item = allItems.find(function (candidate) { return candidate.id === id; });
+  if (item) openDetail(id);
+}
+
+function getMockItems() {
+  const now = Date.now();
+  const day = 24 * 60 * 60 * 1000;
+  return [
+    { id: 'm1', title: 'GBA Essentials', author: 'retrofan', games: 42, systems: ['gba'], imports: 118, created: new Date(now - 2 * day).toISOString() },
+    { id: 'm2', title: 'Game Boy Classics', author: 'pixelpete', games: 30, systems: ['gb'], imports: 64, created: new Date(now - 10 * day).toISOString() },
+    { id: 'm3', title: 'SNES Deep Cuts', author: 'chronoshift', games: 55, systems: ['snes'], imports: 89, created: new Date(now - 1 * day).toISOString() },
+    { id: 'm4', title: 'Genesis Does', author: 'segafan', games: 27, systems: ['md'], imports: 12, created: new Date(now - 20 * day).toISOString() },
+    { id: 'm5', title: 'NES Foundations', author: 'blockyblip', games: 38, systems: ['nes'], imports: 0, created: new Date(now - 33 * day).toISOString() },
+    { id: 'm6', title: 'PSX Deep Dive', author: 'disccrawler', games: 61, systems: ['psx'], imports: 41, created: new Date(now - 5 * day).toISOString() },
+    { id: 'm7', title: 'Portable Mix', author: 'handheldhero', games: 24, systems: ['gba', 'gb'], imports: 27, created: new Date(now - 15 * day).toISOString() },
+    { id: 'm8', title: '90s Multiplat', author: 'cartridgecrate', games: 70, systems: ['snes', 'md', 'psx'], imports: 120, created: new Date(now - 8 * day).toISOString() }
+  ];
+}
+
+renderSort();
+renderAdminBar();
+refreshReports();
+
+if (useMock) {
+  const items = getMockItems();
+  allItems = items;
+  initFilters(items);
+  render();
+  tryOpenFromHash();
+} else if (!WORKER_URL) {
+  showState('The gallery is warming up. Check back soon.');
+} else {
+  showState('Loading collections...');
+  fetch(WORKER_URL + '/api/list')
+    .then(function (res) {
+      if (!res.ok) throw new Error('bad response');
+      return res.json();
+    })
+    .then(function (data) {
+      const items = Array.isArray(data.items) ? data.items.slice() : [];
+      allItems = items;
+      if (!items.length) {
+        showState('Nothing here yet. Share a collection from RetroBridge and tick the public gallery option.');
+        return;
+      }
+      initFilters(items);
+      render();
+      tryOpenFromHash();
+    })
+    .catch(function () {
+      showState('Could not load the gallery. Try again in a minute.');
+    });
+}
+</script>
+
+</body>
+</html>
