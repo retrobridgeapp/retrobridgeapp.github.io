@@ -1020,7 +1020,7 @@ function adminDelete(id) {
 
 function setGalleryCount(count) {
   if (count > 0) {
-    galleryCountEl.textContent = count + (count === 1 ? ' collection' : ' collections') + ' on the shelf';
+    galleryCountEl.textContent = count + (count === 1 ? ' collection' : ' collections');
     galleryCountEl.hidden = false;
   } else {
     galleryCountEl.hidden = true;
