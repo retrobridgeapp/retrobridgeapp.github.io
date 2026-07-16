@@ -203,14 +203,24 @@ button.btn { appearance: none; -webkit-appearance: none; font-family: inherit; c
 .invite-title { font-size: 15px; font-weight: 700; color: var(--ink); transition: color 180ms ease; }
 .invite-sub { font-size: 13px; color: var(--muted); max-width: 32ch; }
 
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+}
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex;
   align-items: center; justify-content: center; padding: 24px; z-index: 100;
+  animation: fade-in 160ms ease;
 }
 .modal {
   background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
-  box-shadow: var(--shadow); width: 100%; max-width: 560px; max-height: 80vh;
-  min-height: 0; display: flex; flex-direction: column; padding: 24px; position: relative;
+  box-shadow: var(--shadow); width: 100%; max-width: 760px; max-height: 84vh;
+  min-height: 0; padding: 24px; position: relative;
+  display: grid; grid-template-columns: 256px minmax(0, 1fr); gap: 26px;
+  grid-template-rows: minmax(0, 1fr);
+  animation: modal-in 200ms ease;
 }
 .modal:focus { outline: none; }
 .modal-close {
@@ -222,24 +232,31 @@ button.btn { appearance: none; -webkit-appearance: none; font-family: inherit; c
 .modal-close:hover { background: var(--chip-bg); color: var(--ink); }
 .modal-close:focus-visible { border-radius: 10px; }
 
-.modal-header { display: flex; flex-direction: column; padding-right: 40px; }
-.modal-tile { width: 100%; aspect-ratio: 21 / 9; max-height: 190px; border-radius: 12px; position: relative; overflow: hidden; margin-bottom: 16px; }
-.modal-head-text { min-width: 0; }
-.modal-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; overflow-wrap: break-word; }
-.modal-meta { font-size: 14px; color: var(--muted); }
-.modal-imports { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.modal-rail { display: flex; flex-direction: column; gap: 14px; min-height: 0; min-width: 0; }
+.modal-tile { width: 100%; aspect-ratio: 4 / 3; border-radius: 12px; position: relative; overflow: hidden; }
+.modal-title { font-size: 20px; font-weight: 800; letter-spacing: -.01em; line-height: 1.25; overflow-wrap: break-word; }
+.modal-meta { font-size: 13.5px; color: var(--muted); }
 
-.modal-notes { margin-top: 18px; font-size: 14.5px; color: var(--ink); line-height: 1.6; }
+.modal-stats { display: flex; gap: 6px; flex-wrap: wrap; }
+.stat-chip {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--muted); background: var(--chip-bg); border-radius: 6px; padding: 4px 8px;
+}
 
-.modal-actions { margin-top: 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.modal-hint { margin-top: 12px; font-size: 12.5px; color: var(--muted); }
+.modal-notes { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
 
-.modal-admin-actions { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; padding-left: 10px; border-left: 1px solid var(--line); }
+.modal-actions { display: flex; flex-direction: column; gap: 8px; }
+.modal-actions .btn { width: 100%; justify-content: center; }
+.modal-actions .report-btn { align-self: flex-start; }
+.modal-hint { font-size: 12px; color: var(--muted); }
+
+.modal-admin-actions { display: flex; align-items: center; gap: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
 .btn.muted { border-style: dashed; color: var(--muted); }
 .btn.muted:hover { border-color: var(--muted); color: var(--ink); background: var(--chip-bg); }
 .btn.danger { border-color: var(--danger); color: var(--danger); background: var(--surface); }
 .btn.danger:hover { background: var(--danger-bg); border-color: var(--danger); text-decoration: none; }
-.modal-admin-msg { margin-top: 10px; font-size: 12.5px; color: var(--danger); }
+.modal-admin-msg { font-size: 12.5px; color: var(--danger); }
 
 .admin-bar {
   position: fixed; right: 16px; bottom: 16px; z-index: 90;
@@ -286,29 +303,41 @@ button.btn { appearance: none; -webkit-appearance: none; font-family: inherit; c
 .review-empty { font-size: 12.5px; color: var(--muted); padding: 6px 0; }
 .review-btn { font-size: 12px; padding: 6px 10px; min-height: 36px; border-radius: 8px; }
 
-.modal-games { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-.modal-game-count { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
-.modal-game-list { overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+.modal-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.modal-game-count {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--line); padding-bottom: 10px;
+}
+.modal-game-list { margin-top: 10px; overflow-y: auto; flex: 1 1 auto; min-height: 0; padding-right: 4px; }
 .game-group-header {
+  display: flex; align-items: center; gap: 6px;
   font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
-  color: var(--muted); padding: 10px 0 6px;
+  color: var(--muted); padding: 12px 0 6px;
 }
 .game-group-header:first-child { padding-top: 0; }
-.game-row { font-size: 14px; padding: 6px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-bottom: 1px solid var(--line); }
-.game-row:last-child { border-bottom: none; }
+.game-group-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.game-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; }
+.game-row-name { font-size: 14px; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.game-thumb { width: 26px; height: 26px; border-radius: 6px; flex: none; position: relative; overflow: hidden; }
+.game-thumb canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
 .modal-error, .modal-empty-note { color: var(--muted); font-size: 14px; padding: 12px 0; }
 
-.skeleton-wrap { display: flex; flex-direction: column; gap: 8px; }
+.skeleton-wrap { display: flex; flex-direction: column; gap: 10px; }
 .skeleton-line {
   display: block; height: 14px; border-radius: 6px;
   background: linear-gradient(90deg, var(--chip-bg) 25%, var(--line2) 37%, var(--chip-bg) 63%);
   background-size: 400% 100%; animation: skeleton-shimmer 1.4s ease infinite;
 }
 .modal-notes .skeleton-line { width: 90%; }
-.game-skeleton { width: 95%; }
-.game-skeleton:nth-child(3n) { width: 70%; }
-.game-skeleton:nth-child(3n+2) { width: 85%; }
+.game-skeleton-row { display: flex; align-items: center; gap: 10px; }
+.skeleton-thumb { width: 26px; height: 26px; border-radius: 6px; flex: none; }
+.game-skeleton-lines { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.game-skeleton { width: 75%; }
+.game-skeleton-row:nth-child(3n) .game-skeleton { width: 55%; }
+.game-skeleton-row:nth-child(3n+2) .game-skeleton { width: 65%; }
+.game-skeleton-sub { width: 35%; height: 10px; }
 @keyframes skeleton-shimmer {
   0% { background-position: 100% 50%; }
   100% { background-position: 0 50%; }
@@ -324,6 +353,10 @@ button.btn { appearance: none; -webkit-appearance: none; font-family: inherit; c
   .toolbar-row-main { flex-direction: column; align-items: stretch; }
   .segmented { width: 100%; }
   .seg-btn { flex: 1 1 0; justify-content: center; }
+
+  .modal { grid-template-columns: 1fr; grid-template-rows: none; max-height: 88vh; overflow-y: auto; }
+  .modal-tile { aspect-ratio: 16 / 10; }
+  .modal-game-list { overflow: visible; flex: none; min-height: auto; }
 }
 
 @media (max-width: 480px) {
@@ -383,27 +416,25 @@ button.btn { appearance: none; -webkit-appearance: none; font-family: inherit; c
     <button id="modalClose" class="modal-close" type="button" aria-label="Close">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <div class="modal-header">
+    <div class="modal-rail">
       <div id="modalTile" class="modal-tile"></div>
-      <div class="modal-head-text">
-        <h2 id="modalTitle" class="modal-title"></h2>
-        <p id="modalMeta" class="modal-meta"></p>
-        <p id="modalImports" class="modal-imports mono" hidden></p>
+      <h2 id="modalTitle" class="modal-title"></h2>
+      <p id="modalMeta" class="modal-meta"></p>
+      <div id="modalStats" class="modal-stats"></div>
+      <div id="modalNotes" class="modal-notes" hidden></div>
+      <div class="modal-actions">
+        <button id="modalCopy" class="btn primary btn-sm" type="button">Copy import link</button>
+        <button id="modalDownload" class="btn ghost btn-sm" type="button">Download</button>
+        <button id="modalReport" class="text-btn report-btn" type="button">Report</button>
       </div>
-    </div>
-    <div id="modalNotes" class="modal-notes" hidden></div>
-    <div class="modal-actions">
-      <button id="modalCopy" class="btn primary btn-sm" type="button">Copy import link</button>
-      <button id="modalDownload" class="btn ghost btn-sm" type="button">Download</button>
-      <button id="modalReport" class="text-btn report-btn" type="button">Report</button>
       <span id="modalAdminActions" class="modal-admin-actions" hidden>
         <button id="modalDelist" class="btn muted btn-sm" type="button">Delist</button>
         <button id="modalDelete" class="btn danger btn-sm" type="button">Delete</button>
       </span>
+      <p id="modalAdminMsg" class="modal-admin-msg" hidden></p>
+      <p class="modal-hint">Paste the link in RetroBridge under Collections, Import, From link.</p>
     </div>
-    <p id="modalAdminMsg" class="modal-admin-msg" hidden></p>
-    <p class="modal-hint">Paste the link in RetroBridge under Collections, Import, From link.</p>
-    <div class="modal-games">
+    <div class="modal-main">
       <p id="modalGameCount" class="modal-game-count mono"></p>
       <div id="modalGameList" class="modal-game-list"></div>
     </div>
@@ -688,7 +719,7 @@ const modalCloseEl = document.getElementById('modalClose');
 const modalTileEl = document.getElementById('modalTile');
 const modalTitleEl = document.getElementById('modalTitle');
 const modalMetaEl = document.getElementById('modalMeta');
-const modalImportsEl = document.getElementById('modalImports');
+const modalStatsEl = document.getElementById('modalStats');
 const modalNotesEl = document.getElementById('modalNotes');
 const modalCopyEl = document.getElementById('modalCopy');
 const modalDownloadEl = document.getElementById('modalDownload');
@@ -1239,7 +1270,6 @@ function fetchDetail(id) {
 function renderDetailHeader(item) {
   const title = typeof item.title === 'string' && item.title ? item.title : 'Untitled collection';
   const author = typeof item.author === 'string' && item.author ? item.author : 'unknown';
-  const importCount = Number(item.imports) || 0;
 
   modalTitleEl.textContent = title;
   modalTileEl.innerHTML = '';
@@ -1247,16 +1277,11 @@ function renderDetailHeader(item) {
 
   const dateStr = formatShortDate(item.created);
   modalMetaEl.textContent = 'by ' + author + (dateStr ? ' ' + MDOT + ' ' + dateStr : '');
-
-  if (importCount > 0) {
-    modalImportsEl.textContent = importCount + ' imports';
-    modalImportsEl.hidden = false;
-  } else {
-    modalImportsEl.hidden = true;
-  }
 }
 
 function showDetailLoading() {
+  modalStatsEl.innerHTML = '';
+
   modalNotesEl.hidden = false;
   modalNotesEl.innerHTML = '';
   modalNotesEl.appendChild(el('span', 'skeleton-line', ''));
@@ -1265,7 +1290,13 @@ function showDetailLoading() {
   modalGameListEl.innerHTML = '';
   const skeletonWrap = el('div', 'skeleton-wrap');
   for (let i = 0; i < 6; i++) {
-    skeletonWrap.appendChild(el('span', 'skeleton-line game-skeleton', ''));
+    const row = el('div', 'game-skeleton-row');
+    row.appendChild(el('span', 'skeleton-line skeleton-thumb', ''));
+    const lines = el('div', 'game-skeleton-lines');
+    lines.appendChild(el('span', 'skeleton-line game-skeleton', ''));
+    lines.appendChild(el('span', 'skeleton-line game-skeleton-sub', ''));
+    row.appendChild(lines);
+    skeletonWrap.appendChild(row);
   }
   modalGameListEl.appendChild(skeletonWrap);
 }
@@ -1309,6 +1340,38 @@ function renderNotes(notes) {
   }
 }
 
+// Per-game identicon-like pixel thumb: mirror-symmetric 5x5 grid seeded from
+// the game name, tinted with the game's system colour (or a palette fallback).
+// Reuses the same mulberry32/hexToParts/mixParts/partsToRgba helpers as renderMosaic.
+function renderGameThumb(name, system) {
+  const span = el('span', 'game-thumb');
+  const baseColor = (system && SYSTEM_COLORS[system]) ? SYSTEM_COLORS[system] : palettePick(String(name || ''));
+  span.style.background = hexToRgba(baseColor, .22);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 5;
+  canvas.height = 5;
+  const ctx = canvas.getContext('2d');
+
+  const baseParts = hexToParts(baseColor);
+  const tones = [baseParts, mixParts(baseParts, [255, 255, 255], .35), mixParts(baseParts, [0, 0, 0], .30)];
+  const rand = mulberry32(hashString(String(name || '')));
+
+  for (let y = 0; y < 5; y++) {
+    for (let x = 0; x < 3; x++) {
+      if (rand() >= 0.5) continue;
+      const tone = tones[Math.floor(rand() * tones.length)];
+      ctx.fillStyle = partsToRgba(tone, 1);
+      const mirrorX = 4 - x;
+      ctx.fillRect(x, y, 1, 1);
+      if (mirrorX !== x) ctx.fillRect(mirrorX, y, 1, 1);
+    }
+  }
+
+  span.appendChild(canvas);
+  return span;
+}
+
 function renderGameList(games) {
   modalGameListEl.innerHTML = '';
   if (!Array.isArray(games) || !games.length) {
@@ -1336,12 +1399,38 @@ function renderGameList(games) {
       const bn = typeof b.name === 'string' ? b.name : '';
       return an.localeCompare(bn);
     });
-    modalGameListEl.appendChild(el('p', 'game-group-header', system + ' (' + groupGames.length + ')'));
+    const header = el('div', 'game-group-header');
+    const dot = el('span', 'game-group-dot');
+    dot.style.background = chipDotColor(system);
+    header.appendChild(dot);
+    header.appendChild(document.createTextNode(system + ' (' + groupGames.length + ')'));
+    modalGameListEl.appendChild(header);
     groupGames.forEach(function (game) {
       const name = game && typeof game.name === 'string' && game.name ? game.name : 'Unknown title';
-      modalGameListEl.appendChild(el('p', 'game-row', name));
+      const row = el('div', 'game-row');
+      row.appendChild(renderGameThumb(name, system));
+      row.appendChild(el('span', 'game-row-name', name));
+      modalGameListEl.appendChild(row);
     });
   });
+}
+
+// Stat chips (games / systems / imports) derived from loaded detail data.
+// Left empty until data arrives, so the loading state shows no chips.
+function renderModalStats(item, games) {
+  modalStatsEl.innerHTML = '';
+  const list = Array.isArray(games) ? games : [];
+  const systems = new Set();
+  list.forEach(function (game) {
+    const system = game && typeof game.system === 'string' && game.system ? game.system : 'unknown';
+    systems.add(system);
+  });
+  const importCount = Number(item && item.imports) || 0;
+  modalStatsEl.appendChild(el('span', 'stat-chip mono', list.length + ' games'));
+  modalStatsEl.appendChild(el('span', 'stat-chip mono', systems.size + ' systems'));
+  if (importCount > 0) {
+    modalStatsEl.appendChild(el('span', 'stat-chip mono', importCount + ' imports'));
+  }
 }
 
 function showDetailError() {
@@ -1409,6 +1498,7 @@ function openDetail(id, triggerEl, itemOverride) {
     renderDetailCover(data && data.cover);
     renderNotes(data && data.notes);
     renderGameList(data && data.games);
+    renderModalStats(item, data && data.games);
   }).catch(function () {
     if (currentOpenId !== id) return;
     showDetailError();
