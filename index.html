@@ -408,16 +408,28 @@ h2 { font-size: clamp(27px, 3.4vw, 35px); font-weight: 800; letter-spacing: -.02
   }
   function next() { go(i + 1); }
   function prev() { go(i - 1); }
-  function start() { if (!reduce) timer = window.setInterval(next, 5500); }
+  function start() {
+    if (reduce || timer !== null) return;
+    timer = window.setInterval(next, 5500);
+  }
   function stop() { if (timer) { window.clearInterval(timer); timer = null; } }
-  function restart() { stop(); start(); }
+  function syncAutoplay(forceRestart) {
+    var paused = root.matches(':hover') || root.matches(':focus-within');
+    if (paused) {
+      stop();
+      return;
+    }
+    if (forceRestart) stop();
+    start();
+  }
+  function restart() { syncAutoplay(true); }
 
   root.querySelector('.nav-next').addEventListener('click', function () { next(); restart(); });
   root.querySelector('.nav-prev').addEventListener('click', function () { prev(); restart(); });
-  root.addEventListener('mouseenter', stop);
-  root.addEventListener('mouseleave', start);
-  root.addEventListener('focusin', stop);
-  root.addEventListener('focusout', start);
+  root.addEventListener('mouseenter', function () { syncAutoplay(false); });
+  root.addEventListener('mouseleave', function () { syncAutoplay(false); });
+  root.addEventListener('focusin', function () { syncAutoplay(false); });
+  root.addEventListener('focusout', function () { syncAutoplay(false); });
   root.setAttribute('tabindex', '0');
   root.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowRight') { next(); restart(); }
@@ -425,7 +437,7 @@ h2 { font-size: clamp(27px, 3.4vw, 35px); font-weight: 800; letter-spacing: -.02
   });
 
   go(0);
-  start();
+  syncAutoplay(false);
 })();
 </script>
 
